@@ -25,5 +25,12 @@ describe Her::Model::Associations::AssociationProxy do
       subject.fish.name = "Fishy"
       expect(subject.fish.name).to eq "Fishy"
     end
+
+    it "should forward == and equal? to the fetched object" do
+      fish = subject.fish
+      target = fish.association.fetch
+      expect(fish == target).to be true
+      expect(fish.equal?(target)).to be true
+    end
   end
 end
