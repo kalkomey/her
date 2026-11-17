@@ -1,7 +1,18 @@
 module Her
   module Model
     module Associations
-      class AssociationProxy < (ActiveSupport.const_defined?('ProxyObject') ? ActiveSupport::ProxyObject : ActiveSupport::BasicObject)
+      # Inherits from Ruby's ::BasicObject rather than ActiveSupport::ProxyObject
+      # (deprecated in Rails 7.2, removed in 8.0) or ActiveSupport::BasicObject
+      # (removed in Rails 4.1), so it behaves the same on every Rails version.
+      class AssociationProxy < ::BasicObject
+        # ActiveSupport::ProxyObject undefined these so they reach method_missing
+        # and are forwarded to the fetched object.
+        undef_method :==, :equal?
+
+        # BasicObject has no #raise; keep the one ProxyObject provided.
+        def raise(*args)
+          ::Object.send(:raise, *args)
+        end
 
         # @private
         def self.install_proxy_methods(target_name, *names)
